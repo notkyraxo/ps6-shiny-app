@@ -55,7 +55,7 @@ ui <- fluidPage(
              sidebarPanel(
                fluidRow(
                  column(6,
-                        radioButtons("Color", "Choose color:",
+                        radioButtons("color", "Choose color:",
                                      choices = c("purple3", "pink2", "lightgreen",
                                                   "skyblue"))
                         )
@@ -87,7 +87,7 @@ server <- function(input, output) {
       ggplot() +
       geom_bar(mapping = aes(x = Answer, y = Count), 
                stat = 'identity',
-               fill = "blue")
+               fill = input$color)
   })
     
   
