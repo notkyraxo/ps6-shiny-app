@@ -16,7 +16,7 @@ library(dplyr)
 # Load Data
 base <- read_delim("WhatsgoodlyData-6.csv") #unedited/raw data
 
-#Data Cleaning
+# DATA CLEANING
 sample_n(base, 5)
 
 colnames(base)
@@ -25,6 +25,7 @@ shopping <- base %>%
   group_by(`Segment Type`, `Segment Description`)
 head(shopping, 10)
 
+## Subset for Plot Tab
 shopping_gender <- shopping %>% 
   filter(`Segment Type` == "Gender")
 shopping_gender
@@ -32,7 +33,7 @@ shopping_gender
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   tabsetPanel(
-    ## TAB 1
+    ## TAB 1 - ABOUT DATA
     tabPanel("About Our Data",
              titlePanel("Shopping n' Social Media"),
              
@@ -51,11 +52,11 @@ ui <- fluidPage(
              tableOutput("sample")
              ),
     
-    ## TAB 2
+    ## TAB 2 - PLOTS
     tabPanel("Plots",
              titlePanel("Frequency of Shoppers According to Social Media"),
              p("Here you can see the frequency of users who spend by their
-               gender identity. You may also choose the color of the graph!"),
+               gender identity. You can also choose the color of the graph!"),
              
              mainPanel(plotOutput("barplot")),
              
@@ -71,10 +72,22 @@ ui <- fluidPage(
                                                    "Both")))
                  )
                )
+             # Try to add a reactive message (according to gender) on which
+             # social media platform was the most popular
+             
              ),
 
-    ## TAB 3
+    ## TAB 3 - TABLES
     tabPanel("Tables",
+             titlePanel("Percentage of Shoppers According to University"),
+             p("Here you can look at a table that gives the different frequencies
+                of social media platforms according to College/University.")
+             # Insert Radiobuttons
+             # Insert table that is filtered according to different universities
+             # If you have time, try to print out a message that gives the
+             # most popular platform: 
+             # "_____ was the most popular for this university!"
+             
           
              ),
   )
@@ -86,8 +99,7 @@ server <- function(input, output) {
   ## ABOUT OUR DATA PAGE
   output$sample <- renderTable(
     base %>% 
-      sample_n(5)
-    )
+      sample_n(5))
  
   ## PLOTS
   output$barplot <- renderPlot({
@@ -97,16 +109,13 @@ server <- function(input, output) {
       geom_bar(mapping = aes(x = Answer, y = Count), 
                stat = 'identity',
                fill = input$color) +
-      labs(
-        x = "Social Media",
-        y = "Number of Shoppers"
-      )
-      
+      labs(x = "Social Media", y = "Number of Shoppers")
   })
     
   
-  
   ## TABLES
+  
+  
 }
 
 # Run the application 
