@@ -11,22 +11,28 @@ library(shiny)
 library(tidyverse)
 library(ggplot2)
 library(plotly)
+library(dplyr)
 
 # Load Data
-shopping <- read_delim("WhatsgoodlyData-6.csv")
+base <- read_delim("WhatsgoodlyData-6.csv") #unedited/raw data
 
 #Data Cleaning
-sample_n(shopping, 5)
+sample_n(base, 5)
 
-colnames(shopping)
+colnames(base)
 
-shopping2 <- shopping %>% 
+shopping <- base %>% 
   group_by(`Segment Type`, `Segment Description`)
-head(shopping2, 10)
+head(shopping, 10)
+
+shopping_gender <- shopping %>% 
+  filter(`Segment Type` == "Gender")
+shopping_gender
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   tabsetPanel(
+    ## TAB 1
     tabPanel("About Our Data",
              titlePanel("Shopping n' Social Media"),
              
@@ -45,10 +51,11 @@ ui <- fluidPage(
              tableOutput("sample")
              ),
     
+    ## TAB 2
     tabPanel("Plots",
              titlePanel("Frequency of Shoppers According to Social Media"),
              p("Here you can see the frequency of users who spend by their
-               gender identity."),
+               gender identity. You may also choose the color of the graph!"),
              
              mainPanel(plotOutput("barplot")),
              
@@ -57,37 +64,44 @@ ui <- fluidPage(
                  column(6,
                         radioButtons("color", "Choose color:",
                                      choices = c("purple3", "pink2", "lightgreen",
-                                                  "skyblue"))
-                        )
+                                                  "skyblue"))),
+                 column(6,
+                        radioButtons("gender", "Choose gender:",
+                                     choices = c(unique(shopping_gender$`Segment Description`), 
+                                                   "Both")))
                  )
                )
-             )
-             
              ),
-    
+
+    ## TAB 3
     tabPanel("Tables",
           
              ),
-    
   )
+)
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
   ## ABOUT OUR DATA PAGE
   output$sample <- renderTable(
-    shopping %>% 
+    base %>% 
       sample_n(5)
     )
  
   ## PLOTS
   output$barplot <- renderPlot({
-      shopping2 %>%
-      filter(`Segment Type` == "Gender") %>%
+    shopping_gender %>%
+    filter(input$gender == "Both" | `Segment Description` == input$gender) %>%
       ggplot() +
       geom_bar(mapping = aes(x = Answer, y = Count), 
                stat = 'identity',
-               fill = input$color)
+               fill = input$color) +
+      labs(
+        x = "Social Media",
+        y = "Number of Shoppers"
+      )
+      
   })
     
   
