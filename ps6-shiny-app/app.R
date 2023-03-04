@@ -16,7 +16,7 @@ library(dplyr)
 # Load Data
 base <- read_delim("WhatsgoodlyData-6.csv") #unedited/raw data
 
-# DATA CLEANING
+## DATA CLEANING
 sample_n(base, 5)
 
 colnames(base)
@@ -25,16 +25,18 @@ shopping <- base %>%
   group_by(`Segment Type`, `Segment Description`)
 head(shopping, 10)
 
-## Subset for Plot Tab
+# Subset for Plot Tab
 shopping_gender <- shopping %>% 
   filter(`Segment Type` == "Gender")
 shopping_gender
 
+# Subset for Table Tab
 shopping_uni <- shopping %>% 
   filter(`Segment Type` == "University")
 shopping_uni
 
-# Define UI for application that draws a histogram
+## APP
+
 ui <- fluidPage(
   tabsetPanel(
     ## TAB 1 - ABOUT DATA
@@ -101,7 +103,7 @@ ui <- fluidPage(
     ),
 )
 
-# Define server logic required to draw a histogram
+
 server <- function(input, output) {
   
   ## ABOUT OUR DATA PAGE
@@ -121,7 +123,19 @@ server <- function(input, output) {
   })
   
   output$sentence1 <- renderText({
-    "(max count) was the most popular platform for female/male shoppers!"
+    if(input$gender == "Both"){
+      paste("Overall, most people either didn't shop from social media
+            or used Instagram to shop!")
+    }
+    
+    else if(input$gender == "Female voters"){
+      paste("Instagram was the most influential for women!")
+    }
+    
+    else if(input$gender == "Male voters"){
+      paste("There was no social media influence on shopping
+            for most men.")
+    }
   })
     
   ## TABLES
@@ -132,11 +146,13 @@ server <- function(input, output) {
   })
   
   output$sentence2 <- renderText({
-    "(insert app with max percentage(s) here) was the most
-     popular at (input$university)!"
+    shopping_uni %>% 
+      filter(`Segment Description` == input$university) %>% 
+      select(Percentage) %>% 
+      max() %>% 
+      paste("The most popular app at", input$university, "was", .)
   })
   
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
