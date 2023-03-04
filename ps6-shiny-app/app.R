@@ -62,7 +62,9 @@ ui <- fluidPage(
              p("Here you can see the frequency of users who spend by their
                gender identity. You can also choose the color of the graph!"),
              
-             mainPanel(plotOutput("barplot")),
+             mainPanel(plotOutput("barplot"),
+                       textOutput("sentence1")
+                       ),
              
              sidebarPanel(
                fluidRow(
@@ -76,9 +78,6 @@ ui <- fluidPage(
                                                    "Both")))
                  )
                )
-             # Try to add a reactive message (according to gender) on which
-             # social media platform was the most popular
-             
              ),
 
     ## TAB 3 - TABLES
@@ -86,21 +85,18 @@ ui <- fluidPage(
              titlePanel("Percentage of Shoppers According to University"),
              p("Here you can look at a table that gives the different frequencies
                 of social media platforms according to College/University."),
-             # Insert Radiobuttons
-             # Insert table that is filtered according to different universities
-             # If you have time, try to print out a message that gives the
-             # most popular platform: 
-             # "_____ was the most popular for this university!"
              
-             mainPanel(tableOutput("table")),
+             mainPanel(tableOutput("table"),
+                       textOutput("sentence2")
+                       ),
           
              sidebarPanel(
                fluidRow(
                  column(6,
                         radioButtons("university", "Choose university:",
                                      choices = c(unique(shopping_uni$`Segment Description`))))
-                        )
-                      )
+                  )
+                )
               )
     ),
 )
@@ -123,12 +119,21 @@ server <- function(input, output) {
                fill = input$color) +
       labs(x = "Social Media", y = "Number of Shoppers")
   })
+  
+  output$sentence1 <- renderText({
+    "(max count) was the most popular platform for female/male shoppers!"
+  })
     
   ## TABLES
   output$table <- renderTable({
     shopping_uni %>% 
-      select(`Segment Description`, Answer, Count) %>% 
+      select(`Segment Description`, Answer, Percentage) %>% 
       filter(`Segment Description` == input$university)
+  })
+  
+  output$sentence2 <- renderText({
+    "(insert app with max percentage(s) here) was the most
+     popular at (input$university)!"
   })
   
 }
