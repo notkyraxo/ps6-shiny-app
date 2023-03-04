@@ -30,6 +30,10 @@ shopping_gender <- shopping %>%
   filter(`Segment Type` == "Gender")
 shopping_gender
 
+shopping_uni <- shopping %>% 
+  filter(`Segment Type` == "University")
+shopping_uni
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
   tabsetPanel(
@@ -81,16 +85,24 @@ ui <- fluidPage(
     tabPanel("Tables",
              titlePanel("Percentage of Shoppers According to University"),
              p("Here you can look at a table that gives the different frequencies
-                of social media platforms according to College/University.")
+                of social media platforms according to College/University."),
              # Insert Radiobuttons
              # Insert table that is filtered according to different universities
              # If you have time, try to print out a message that gives the
              # most popular platform: 
              # "_____ was the most popular for this university!"
              
+             mainPanel(tableOutput("table")),
           
-             ),
-  )
+             sidebarPanel(
+               fluidRow(
+                 column(6,
+                        radioButtons("university", "Choose university:",
+                                     choices = c(unique(shopping_uni$`Segment Description`))))
+                        )
+                      )
+              )
+    ),
 )
 
 # Define server logic required to draw a histogram
@@ -112,9 +124,12 @@ server <- function(input, output) {
       labs(x = "Social Media", y = "Number of Shoppers")
   })
     
-  
   ## TABLES
-  
+  output$table <- renderTable({
+    shopping_uni %>% 
+      select(`Segment Description`, Answer, Count) %>% 
+      filter(`Segment Description` == input$university)
+  })
   
 }
 
