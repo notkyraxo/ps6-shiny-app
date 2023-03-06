@@ -146,11 +146,14 @@ server <- function(input, output) {
   })
   
   output$sentence2 <- renderText({
-    shopping_uni %>% 
+    max <- base %>% 
+      filter(`Segment Type` == "University") %>% 
       filter(`Segment Description` == input$university) %>% 
-      select(Percentage) %>% 
-      max() %>% 
-      paste("The most popular app at", input$university, "was", .)
+      select(Percentage) %>%
+      reframe(popular_app = max(Percentage)*100)
+    
+      paste("The most popular app at", input$university, "had a", max, "percent
+            popular vote.")
   })
   
 }
